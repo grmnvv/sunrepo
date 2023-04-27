@@ -8,6 +8,8 @@ import tokenService from "./tokenService.js";
 import ApiError from "../middleware/apiError.js";
 import emailService from "./emailService.js";
 import jwt from 'jsonwebtoken';
+import { IpInfoModel } from "../models/ipModel.js";
+import { ConnectionInfoModel } from "../models/connectionModel.js";
 
 class UserService {
 
@@ -44,10 +46,7 @@ class UserService {
         ...tokens,
         user: userDto,
       };
-
-      
     }
-
     async login(email, password){
       const user = await UserModel.findOne({ login : email }) || await UserModel.findOne({ email }) 
       if (!user) {
@@ -118,7 +117,6 @@ class UserService {
         'salt':salt
       }
     }
-
     async changePassword(email, password, salt){ //тут мы проверяем валидность и перезаписываем пароль
       const user = await UserModel.findOne({ login : email }) || await UserModel.findOne({ email }) 
       console.log(user.salt)
@@ -136,8 +134,38 @@ class UserService {
         throw ApiError.BadRequest(`Ошибка доступа`);
       }
     }
-    async checklink(token){
-      
+    async getInfoIp(refreshToken){
+      if (!refreshToken) {
+        throw ApiError.UnauthorizedError();
+      }
+      const userData = tokenService.validateRefreshToken(refreshToken);
+      const ipinfo = IpInfoModel.find({user: userData.id})
+      return ipinfo
+    }
+    async getInfoConnection(refreshToken){
+      if (!refreshToken) {
+        throw ApiError.UnauthorizedError();
+      }
+      const userData = tokenService.validateRefreshToken(refreshToken);
+      const connectionInfo = ConnectionInfoModel.find({user: userData.id})
+      return connectionInfo
+    }
+    async updateInfoIp(refreshToken, ip, city, lat, long){
+      if (!refreshToken) {
+        throw ApiError.UnauthorizedError();
+      }
+      const userData = tokenService.validateRefreshToken(refreshToken);
+      const ipinfo = IpInfoModel.create({user: userData.id, ipAddress: ip, city: city, latitude: lat, longitude: long})
+      return ipinfo
+    }
+    async updateInfoConnection(refreshToken, downloadSpeed, uploadSpeed, ping){
+      if (!refreshToken) {
+        throw ApiError.UnauthorizedError();
+      }
+      const userData = tokenService.validateRefreshToken(refreshToken);
+
+      const connectionInfo = ConnectionInfoModel.create({user: userData.id, downloadSpeed: downloadSpeed, uploadSpeed: uploadSpeed, ping: ping})
+      return connectionInfo
     }
 }
 

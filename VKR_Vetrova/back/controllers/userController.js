@@ -98,6 +98,76 @@ class UserController {
             next(e);
         }
     }
+    async getInfoIp(req, res, next){
+        try {
+            const {refreshToken} = req.cookies;
+            const infoIP = await UserService.getInfoIp(refreshToken)
+            return res.json(infoIP)
+        } catch (e) {
+            next(e)
+        }
+    }
+    async getInfoConnection(req, res, next){
+        try {
+            const {refreshToken} = req.cookies;
+            const infoConnection = await UserService.getInfoConnection(refreshToken)
+            return res.json(infoConnection)
+        } catch (e) {
+            next(e)
+        }
+    }
+    async updateInfoIp(req, res, next){
+        try {
+            const {refreshToken} = req.cookies;
+            const {ip, city, lat, long} = req.body;
+            const infoConnection = await UserService.updateInfoIp(refreshToken, ip, city, lat, long)
+            return res.json(infoConnection)
+        } catch (e) {
+            console.log(e)
+            next(e)
+        }
+    }
+    async updateInfoConnection(req, res, next){
+        try {
+            const {refreshToken} = req.cookies;
+            const {downloadSpeed, uploadSpeed, ping} = req.body;
+            const infoConnection = await UserService.updateInfoConnection(refreshToken, downloadSpeed, uploadSpeed, ping)
+            return res.json(infoConnection)
+        } catch (e) {
+            console.log(e)
+            next(e)
+        }
+    }
+    async uploadSpeed(req, res, next){
+        try {
+            const hey = req.body;
+            console.log(hey)
+            return res.json({'nothing':'hey'})
+        } catch (e) {
+            console.log(e)
+            next(e)
+        }
+    }
+    async downloadSpeed(req, res, next){
+        const chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        function generateTestData(sizeInKb) {
+          const iterations = sizeInKb; //get byte count
+          let result = '';
+          for (let index = 0; index < iterations; index++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+          return result;
+        }
+        try {
+            console.log('gfdsgsdfdgsf')
+            const size = req.params.size;
+            const testData = generateTestData(size);
+            return res.json(testData)
+        } catch (e) {
+            next(e)
+        }
+    }
 }
 
 export default new UserController();

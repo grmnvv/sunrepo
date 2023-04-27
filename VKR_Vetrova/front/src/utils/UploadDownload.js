@@ -1,22 +1,17 @@
-import axios from 'axios';
+import axios from "axios";
+import $api from "../http";
 
-const chars =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]{}|;':,./<>?";
+const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 export default class NetworkSpeedCheck {
-
-  static async checkDownloadSpeed(baseUrl, fileSizeInBytes) {
-    this.validateDownloadSpeedParams(baseUrl, fileSizeInBytes);
+  static async checkDownloadSpeed(fileSizeInBytes = 2000000) {
     let startTime;
 
     try {
       return await new Promise(async (resolve, reject) => {
         try {
-          const response = await axios({
-            method: 'get',
-            url: baseUrl,
-            responseType: 'arraybuffer',
-            onDownloadProgress: progressEvent => {
+          const response = await $api.get(`/downloadSpeed/${fileSizeInBytes}`, {
+            onDownloadProgress: (progressEvent) => {
               if (!startTime) {
                 startTime = new Date().getTime();
               }
@@ -30,7 +25,6 @@ export default class NetworkSpeedCheck {
           const kbps = (bps / 1000).toFixed(2);
           const mbps = (kbps / 1000).toFixed(2);
           resolve({ bps, kbps, mbps });
-
         } catch (error) {
           reject(error);
         }
@@ -40,20 +34,17 @@ export default class NetworkSpeedCheck {
     }
   }
 
-  static async checkUploadSpeed(url, fileSizeInBytes = 2000000) {
+  static async checkUploadSpeed(fileSizeInBytes = 2000000) {
     let startTime;
     const defaultData = this.generateTestData(fileSizeInBytes / 1000);
     const data = JSON.stringify({ defaultData });
-    console.log(url)
+    
     try {
       return await new Promise(async (resolve, reject) => {
         try {
           startTime = new Date().getTime();
-          await axios.post(url, data, {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            onUploadProgress: progressEvent => {
+          await $api.post("/uploadSpeed", data, {
+            onUploadProgress: (progressEvent) => {
               if (!startTime) {
                 startTime = new Date().getTime();
               }
@@ -67,7 +58,34 @@ export default class NetworkSpeedCheck {
           const kbps = (bps / 1000).toFixed(2);
           const mbps = (kbps / 1000).toFixed(2);
           resolve({ bps, kbps, mbps });
+        } catch (error) {
+          reject(error);
+        }
+      });
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  static async checkPing(fileSizeInBytes = 64) {
+    let startTime;
+    const defaultData = this.generateTestData(fileSizeInBytes / 1000);
+    const data = JSON.stringify({ defaultData });
+    try {
+      return await new Promise(async (resolve, reject) => {
+        try {
+          startTime = new Date().getTime();
+          await $api.post("/uploadSpeed", data, {
+            onUploadProgress: (progressEvent) => {
+              if (!startTime) {
+                startTime = new Date().getTime();
+              }
+            },
+          });
 
+          const endTime = new Date().getTime();
+          const duration = (endTime - startTime) ;
+
+          resolve(duration);
         } catch (error) {
           reject(error);
         }
@@ -78,22 +96,21 @@ export default class NetworkSpeedCheck {
   }
 
   static validateDownloadSpeedParams(baseUrl, fileSizeInBytes) {
-    if (typeof baseUrl !== 'string') {
-      throw new Error('baseUrl must be a string');
+    if (typeof baseUrl !== "string") {
+      throw new Error("baseUrl must be a string");
     }
-    if (typeof fileSizeInBytes !== 'number') {
-      throw new Error('fileSizeInBytes must be a number');
+    if (typeof fileSizeInBytes !== "number") {
+      throw new Error("fileSizeInBytes must be a number");
     }
     return;
   }
 
   static generateTestData(sizeInKb) {
     const iterations = sizeInKb * 1000; //get byte count
-    let result = '';
+    let result = "";
     for (let index = 0; index < iterations; index++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
   }
 }
-
