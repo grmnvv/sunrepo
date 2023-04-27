@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { Context } from "../..";
 import styles from "./speedtest.module.css";
 import axios from "axios";
-import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
+import { YMaps, Map, Placemark } from "@pbe/react-localhost-maps";
 import { observer } from "mobx-react-lite";
 
 const SpeedTest = () => {

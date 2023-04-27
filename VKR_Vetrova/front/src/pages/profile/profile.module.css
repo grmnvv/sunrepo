@@ -1,0 +1,14 @@
+.chart {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    border: 1px solid black;
+  }
+  
+  .bar {
+    position: absolute;
+    bottom: 0;
+    width: 2px;
+    background: blue;
+  }
+  
