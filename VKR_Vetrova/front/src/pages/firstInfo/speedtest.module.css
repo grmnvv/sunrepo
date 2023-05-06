@@ -1,9 +1,11 @@
 .container {
   height: 100vh;
-  width: 100vw;
+  width: 80%;
+  margin: 0 10%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  
 }
 .firstText {
   font-size: 36px;
@@ -14,8 +16,8 @@
   margin-top: 50px;
 }
 .centered {
+  margin: 200px 0 0 0;
   display: flex;
-  width: 30vw;
   flex-direction: column;
   align-items: center;
   animation-name: fillOpacity;

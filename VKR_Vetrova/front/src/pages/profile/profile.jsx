@@ -4,35 +4,65 @@ import { useNavigate } from "react-router-dom";
 import styles from "./profile.module.css";
 import Ip from "./ip/ip";
 import { Context } from "../..";
+import { Link } from "react-router-dom";
+import Histogram from "./ip/components/Histogram";
+import SpeedResults from "./ip/components/SpeedResults";
+import ActivePointInfo from "./ip/components/ActivePointInfo";
+import IpHistory from "./ip/components/IpHistory";
+import Header from "./ip/components/Header";
+
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  console.log(windowSize);
+  return windowSize;
+}
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  const size = useWindowSize();
   const { store } = useContext(Context);
   const canvasRef = useRef(null);
   const [speedType, setSpeedType] = useState("downloadSpeed");
-  const [activePoint, setActivePoint] = useState(null); // State for the active point
-  const [pointPosition, setPointPosition] = useState({ x: 0, y: 0 }); // State for the position of the active point
+  const [activePoint, setActivePoint] = useState(null);
+  const [pointPosition, setPointPosition] = useState({ x: 0, y: 0 });
+  const [fixedCanvasWidth, setFixedCanvasWidth] = useState(size.width * 0.8);
 
   useEffect(() => {
     store.refresh();
     store.getInfoConnection();
     store.getInfoIp();
-    console.log(store.ConnectionArray);
   }, []);
 
-  const fixedCanvasWidth = window.innerWidth * 0.7; // Set your fixed width here
+  useEffect(() => {
+    setFixedCanvasWidth(size.width * 0.8);
+  }, [size]);
 
   useEffect(() => {
+    setFixedCanvasWidth(size.width * 0.8);
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    let max = Math.max(
-      ...store.ConnectionArray.map((item) => item[speedType]) // Use the dynamic speed type here
-    );
+    let max = Math.max(...store.ConnectionArray.map((item) => item[speedType]));
     let scale = (canvas.height - 40) / max;
 
-    // Draw horizontal lines and their labels
     ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
     ctx.strokeStyle = "rgba(75, 192, 192, 0.6)";
     ctx.lineWidth = 1;
@@ -46,7 +76,6 @@ const ProfilePage = () => {
       ctx.fillText(i, 0, y);
     }
 
-    // Draw line chart
     ctx.beginPath();
     ctx.strokeStyle = "rgba(75, 192, 192, 1)";
     ctx.lineWidth = 1;
@@ -68,12 +97,10 @@ const ProfilePage = () => {
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Draw points and their labels
     store.ConnectionArray.forEach((item, index) => {
-      let height = item[speedType] * scale; // Use the dynamic speed type here
-      let xPos = index * pointDistance + 50; // Use pointDistance here again
+      let height = item[speedType] * scale;
+      let xPos = index * pointDistance + 50;
 
-      // Draw point
       ctx.fillStyle = "rgba(255, 255, 255, 1)";
       ctx.strokeStyle = "rgba(75, 192, 192, 1)";
       ctx.lineWidth = 2;
@@ -81,25 +108,42 @@ const ProfilePage = () => {
       ctx.arc(xPos, canvas.height - height, 4, 0, 2 * Math.PI);
       ctx.fill();
       ctx.stroke();
-      // Draw label
       ctx.fillStyle = "#000000";
       ctx.font = "12px Arial";
       ctx.fillText(
-        item[speedType] + " мб/с", // Use the dynamic speed type here
+        item[speedType] + " мб/с",
         xPos - 10,
         canvas.height - height - 10
       );
     });
-  }, [store.ConnectionArray, speedType]); // Add speedType to the dependency array
+  }, [store.ConnectionArray, speedType, fixedCanvasWidth]);
 
-  let bestResult = Math.max(
-    ...store.ConnectionArray.map((item) => item[speedType]) // Use the dynamic speed type here
+  const bestResultIndex = store.ConnectionArray.reduce(
+    (maxIndex, item, index, array) => {
+      return item.downloadSpeed > array[maxIndex].downloadSpeed
+        ? index
+        : maxIndex;
+    },
+    0
   );
-  let averageResult =
+  const bestResult = store.ConnectionArray[bestResultIndex];
+
+  const averageDownloadSpeed =
     store.ConnectionArray.reduce(
-      (total, item) => total + item[speedType], // Use the dynamic speed type here
+      (total, item) => total + item.downloadSpeed,
       0
     ) / store.ConnectionArray.length;
+  console.log(averageDownloadSpeed);
+  const closestToAverageIndex = store.ConnectionArray.reduce(
+    (closestIndex, item, index, array) => {
+      return Math.abs(item.downloadSpeed - averageDownloadSpeed) <
+        Math.abs(array[closestIndex].downloadSpeed - averageDownloadSpeed)
+        ? index
+        : closestIndex;
+    },
+    0
+  );
+  const averageResult = store.ConnectionArray[closestToAverageIndex];
 
   const handleMouseMove = (event) => {
     const rect = canvasRef.current.getBoundingClientRect();
@@ -114,71 +158,35 @@ const ProfilePage = () => {
         ((canvasRef.current.height - 40) /
           Math.max(...store.ConnectionArray.map((item) => item[speedType])));
       if (Math.abs(canvasRef.current.height - height - y) < 5) {
-        // If the mouse is within 5 pixels of the point
         const time = new Date(point.createdAt);
         const updatedPoint = {
           ...point,
           createdAt: `${time.toLocaleDateString()} в ${time.toLocaleTimeString()}`,
         };
         setActivePoint(updatedPoint);
-        setPointPosition({ x: x + rect.left, y: y + rect.top }); // Update the position of the active point
+        setPointPosition({ x: x + rect.left, y: y + rect.top });
       } else {
         setActivePoint(null);
       }
     }
   };
   return (
-    <div
-      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-    >
-      <button
-        onClick={() =>
-          setSpeedType(
-            speedType === "downloadSpeed" ? "uploadSpeed" : "downloadSpeed"
-          )
-        }
-      >
-        Switch to{" "}
-        {speedType === "downloadSpeed" ? "Upload Speed" : "Download Speed"}
-      </button>
-      <div className={styles.histogramm} style={{ border: "1px solid black" }}>
-        <canvas
-          ref={canvasRef}
-          width={fixedCanvasWidth}
-          height={300}
-          style={{ margin: "auto" }}
-          onMouseMove={handleMouseMove}
-        ></canvas>
+    <div className={styles.container}>
+      <div className={styles.centered}>
+        <Header email={store.user.email} />
+        <h2 className={styles.profileInfo}>Это ваш профиль</h2>
+        <Histogram
+          handleMouseMove={handleMouseMove}
+          canvasRef={canvasRef}
+          fixedCanvasWidth={fixedCanvasWidth}
+        />
+        <SpeedResults bestResult={bestResult} averageResult={averageResult} />
+        {activePoint && (
+          <ActivePointInfo point={activePoint} position={pointPosition} />
+        )}
+        <hr style={{ margin: "50px 0" }} />
+        <IpHistory IpArray={store.IpArray} />
       </div>
-      <div>
-        <p>Лучший результат: {bestResult}</p>
-        <p>Средний результат: {averageResult.toFixed(2)}</p>
-      </div>
-      {activePoint && ( // If there is an active point, show a modal
-        <div
-          style={{
-            position: "absolute",
-            top: pointPosition.y - 60, // Show the modal right above the point
-            left: pointPosition.x - 50, // Center the modal horizontally
-            backgroundColor: "white",
-            padding: "10px",
-            border: "1px solid black",
-            borderRadius: "5px",
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.15)",
-            fontSize: "12px",
-          }}
-        >
-          <p style={{ fontSize: "12px" }}>
-            Дата измерения: {activePoint.createdAt}
-          </p>
-          <p style={{ fontSize: "12px" }}>
-            Скорость скачивания: {activePoint.downloadSpeed} мб/с
-          </p>
-          <p style={{ fontSize: "12px" }}>
-          Скорость загрузки: {activePoint.uploadSpeed} мб/с
-          </p>
-        </div>
-      )}
     </div>
   );
 };

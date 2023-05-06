@@ -1,0 +1,98 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100px;
+  padding: 0 100px;
+  border-bottom: 1px solid black;
+  width: 100%;
+}
+
+.title {
+  font-size: 40px;
+}
+
+.email {
+  /* add your styles here */
+}
+
+.profileInfo {
+  margin-top: 200px;
+  font-size: 24px;
+}
+
+.histogram {
+  border: 1px solid black;
+}
+
+.results {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.pointInfo {
+  position: absolute;
+  background-color: white;
+  padding: 10px;
+  border: 1px solid black;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  font-size: 12px;
+}
+
+.ipHistoryTitle {
+  font-size: 24px;
+}
+
+.ipHistoryContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.ipItem {
+  padding: 20px;
+  border-radius: 30px;
+  background-color: lightgray;
+}
+
+/*...предыдущий код...*/
+
+.menu {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .dropdown {
+    position: absolute;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 200px;
+  }
+  
+  .dropdownItem {
+    display: block;
+    padding: 10px;
+    background-color: inherit;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    text-align: left;
+    border: none; 
+    outline: none;
+    color: black;
+  }
+  
+  .dropdownItem:hover {
+    background-color: #f7f7f7;
+  }
+  
+  .dropdownItem:last-child {
+    border-bottom: none;
+  }
+button{
+
+}  

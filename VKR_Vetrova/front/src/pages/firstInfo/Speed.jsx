@@ -4,6 +4,7 @@ import styles from "./speedtest.module.css";
 import axios from "axios";
 import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
 import { observer } from "mobx-react-lite";
+import Header from "../profile/ip/components/Header";
 
 const SpeedTest = () => {
   const { store } = useContext(Context);
@@ -14,10 +15,30 @@ const SpeedTest = () => {
   const [position, setPosition] = useState(null);
   const [check, setCheck] = useState(false);
   const [browserInfo, setBrowserInfo] = useState(null);
+  const [batteryInfo, setBatteryInfo] = useState(null);
+
+  const [speedType, setSpeedType] = useState(null);
 
   useEffect(() => {
+    setSpeedType(
+      document.cookie.replace(
+        /(?:(?:^|.*;\s*)speed\s*\=\s*([^;]*).*$)|^.*$/,
+        "$1"
+      )
+    );
     setBrowserInfo(navigator.userAgent);
     store.refresh();
+  }, []);
+
+  useEffect(() => {
+    if ("getBattery" in navigator) {
+      navigator.getBattery().then((battery) => {
+        setBatteryInfo({
+          level: battery.level * 100,
+          charging: battery.charging,
+        });
+      });
+    }
   }, []);
 
   async function fetchData() {
@@ -74,40 +95,56 @@ const SpeedTest = () => {
 
   return (
     <div className={styles.container}>
+      <Header email={store.user.email} />
       <div className={styles.centered}>
-        <div>
-          {!check && (
-            <div className={styles.firstText}>
-              <div>Привет, {store.isAuth ? store.user.email : "гость"}</div>
-              <div
-                style={{
-                  cursor: "pointer",
-                  width: "100%",
-                  textAlign: "center",
-                  margin: "30px 0 0 0",
-                }}
-                onClick={() => {
-                  fetchData();
-                }}
-              >
-                Провести тест
-              </div>
-              <div className={styles.mini}>или</div>
-              <div className={styles.mini}>Исследовать профиль</div>
+        {!check && (
+          <div className={styles.firstText}>
+            <div>Привет, {store.isAuth ? store.user.email : "гость"}</div>
+            <div
+              style={{
+                cursor: "pointer",
+                width: "100%",
+                textAlign: "center",
+                margin: "30px 0 0 0",
+              }}
+              onClick={() => {
+                fetchData();
+              }}
+            >
+              Провести тест
             </div>
-          )}
-          {check && (
-            <div>
+          </div>
+        )}
+        {check && (
+          <div>
+            {speedType >= 1 && (
               <div>
                 <h2>Скорость соединения: </h2>
+                <hr />
+                <div>
+                  <p>Скорость скачивания: {download} мб/c</p>
+                  <p>Скорость загрузки: {upload} мб/c</p>
+                  <p>Ping: {ping} мс</p>
+                </div>
               </div>
+            )}
+
+            {speedType >= 2 && (
               <div>
-                <p>Скорость скачивания: {download} мб/c</p>
-                <p>Скорость загрузки: {upload} мб/c</p>
-                <p>Ping: {ping} мс</p>
+                <h2>Информация о браузере и компьютере:</h2>
+                <hr />
+                <div>
+                  <p>{browserInfo}</p>
+                  <p>Уровень заряда батареи: {batteryInfo.level}%</p>
+                  <p>Зарядка: {batteryInfo.charging ? "да" : "нет"}</p>
+                </div>
               </div>
+            )}
+
+            {speedType >= 3 && (
               <div>
                 <h2>Информация по IP:</h2>
+                <hr />
                 {ipInfo && (
                   <ul>
                     <li>IP: {ipInfo.ip}</li>
@@ -115,9 +152,6 @@ const SpeedTest = () => {
                     <li>Страна: {ipInfo.country_name}</li>
                   </ul>
                 )}
-              </div>
-              <div>
-                <h2>Карта по IP:</h2>
                 {position ? (
                   <YMaps
                     query={{ apikey: "ddeefd86-2d2c-4bd1-a1ec-34b1e774b08c" }}
@@ -138,13 +172,9 @@ const SpeedTest = () => {
                   <h1>Loading...</h1>
                 )}
               </div>
-              <div>
-                <h2>Информация о браузере и компьютере:</h2>
-                <p>{browserInfo}</p>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
