@@ -43,6 +43,7 @@ const ComfortTest = () => {
           downloadSize={downloadSize}
           uploadSize={uploadSize}
           pingSize={pingSize}
+          type={'comfort'}
         />
       )}
       <BasicTest />
