@@ -3,6 +3,7 @@ import React, { useState, useContext } from "react";
 import { Context } from "../..";
 import styles from "./login.module.css";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const LoginPage = () => {
   const { store } = useContext(Context);
@@ -16,6 +17,14 @@ const LoginPage = () => {
       console.log(e);
     }
   }
+  useEffect(() => {
+    store.refresh()
+  },[])
+  useEffect(() => {
+    if(store.isAuth){
+      navigate('/')
+    }
+  },[store.isAuth])
 
   return (
     <div className={styles.container}>

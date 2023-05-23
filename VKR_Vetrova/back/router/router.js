@@ -10,7 +10,9 @@ router.post('/changePassword', UserController.changePassword)
 router.post('/udpateInfoIp', UserController.updateInfoIp);
 router.post('/uploadSpeed', UserController.uploadSpeed);
 router.post('/udpateInfoConnection', UserController.updateInfoConnection);
+router.post('/updateSettings', UserController.updateSettings)
 router.get('/activate/:link', UserController.activate)
+router.get('/getsettings', UserController.getSettings)
 router.get('/downloadSpeed/:size', UserController.downloadSpeed);
 router.get('/refresh', UserController.refresh);
 router.get('/checklink', UserController.checklink);

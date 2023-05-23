@@ -1,11 +1,13 @@
 .container {
-  height: 100vh;
-  width: 80%;
-  margin: 0 10%;
+  height: 100%;
+  width: 100%;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  
+}
+.absolute {
+  height: 100vh;
+  width: 100vw;
 }
 .firstText {
   font-size: 36px;
@@ -16,7 +18,6 @@
   margin-top: 50px;
 }
 .centered {
-  margin: 200px 0 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;

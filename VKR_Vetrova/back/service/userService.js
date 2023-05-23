@@ -10,6 +10,7 @@ import emailService from "./emailService.js";
 import jwt from 'jsonwebtoken';
 import { IpInfoModel } from "../models/ipModel.js";
 import { ConnectionInfoModel } from "../models/connectionModel.js";
+import { SettingsModel } from "../models/settingsModel.js";
 
 class UserService {
 
@@ -39,9 +40,35 @@ class UserService {
       const tokens = tokenService.generateTokens({...userDto})
 
       await tokenService.saveToken(userDto.id, tokens.refreshToken);
-      console.log('fds')
-      console.log(user)
+      const defaultIpSettings = {
+        index: false,
+        provider: false,
+        utc: false,
+        connectionVersion: false
+      };
+
+      const defaultBrowserSettings = {
+        appCodeName: false,
+        appName: false,
+        appVersion: false,
+        cookieEnabled: false,
+        platform: false,
+        product: false,
+        userAgent: false
+      };
+
+      const newSettings = await SettingsModel.create({
+        user: userDto.id,
+        download: '2000000',
+        upload: '2000000',
+        ping: '64',
+        mb: 'mbps',
+        ipSettings: defaultIpSettings,
+        browserSettings: defaultBrowserSettings
+      });
+
   
+      
       return {
         ...tokens,
         user: userDto,
@@ -61,6 +88,8 @@ class UserService {
       }
       const userDto = new UserDto(user);
       const token = tokenService.generateTokens({ ...userDto });
+
+
       await tokenService.saveToken(userDto.id, token.refreshToken);
       return {
           ...token,
@@ -117,7 +146,7 @@ class UserService {
         'salt':salt
       }
     }
-    async changePassword(email, password, salt){ //тут мы проверяем валидность и перезаписываем пароль
+    async changePassword(email, password, salt){ 
       const user = await UserModel.findOne({ login : email }) || await UserModel.findOne({ email }) 
       console.log(user.salt)
       console.log(salt)
@@ -166,6 +195,48 @@ class UserService {
 
       const connectionInfo = ConnectionInfoModel.create({user: userData.id, downloadSpeed: downloadSpeed, uploadSpeed: uploadSpeed, ping: ping})
       return connectionInfo
+    }
+    async updateSettings(refreshToken, downloadSpeed, uploadSpeed, ping, mb, ipSettingsFromStore, browserSettingsFromStore){
+      if (!refreshToken) {
+        throw ApiError.UnauthorizedError();
+      }
+      const user = tokenService.validateRefreshToken(refreshToken)
+  
+      // Convert arrays to objects
+      const ipSettings = {};
+      ipSettingsFromStore.forEach(setting => {
+        ipSettings[setting.id] = setting.isChecked;
+      });
+  
+      const browserSettings = {};
+      browserSettingsFromStore.forEach(setting => {
+        browserSettings[setting.id] = setting.isChecked;
+      });
+  
+      const update = await SettingsModel.findOneAndUpdate(
+        { user: user.id },
+        { 
+          download: downloadSpeed == '' ? '2000000' : downloadSpeed, 
+          upload: uploadSpeed == '' ? '2000000' : uploadSpeed, 
+          ping: ping == '' ? '64' : ping, 
+          mb:mb,
+          ipSettings,
+          browserSettings
+        }
+      );
+      return update
+    }
+  
+    
+    
+    async getSettings(refreshToken){
+      if (!refreshToken) {
+        throw ApiError.UnauthorizedError();
+      }
+      const user = tokenService.validateRefreshToken(refreshToken)
+      const settings = await SettingsModel.findOne({user: user.id})
+      return settings
+
     }
 }
 

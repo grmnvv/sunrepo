@@ -71,3 +71,10 @@ input::-webkit-inner-spin-button {
     margin-top: 20px;
   }
   
+  .ipAddConnection{
+    display: flex;
+    justify-content: space-between;
+
+    grid-template-columns: 1em auto;
+    gap: 0.5em;
+  }

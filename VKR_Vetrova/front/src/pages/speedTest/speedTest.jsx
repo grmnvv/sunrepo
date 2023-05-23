@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { Context } from "../..";
 import { observer } from "mobx-react-lite";
 
-const SpeedTest = () => {
+const SpeedTest = ({downloadSize = 2000000, uploadSize=2000000, pingSize=64}) => {
   const { store } = useContext(Context);
   const [download, setDownload] = useState("");
   const [upload, setUpload] = useState("");
@@ -10,8 +10,8 @@ const SpeedTest = () => {
 
   useEffect(() => {
     async function fetchData() {
-      const downloadInfoData = await store.getNetworkDownloadSpeed();
-      const uploadInfoData = await store.getNetworkUploadSpeed();
+      const downloadInfoData = await store.getNetworkDownloadSpeed(downloadSize);
+      const uploadInfoData = await store.getNetworkUploadSpeed(uploadSize, pingSize);
       setUpload(uploadInfoData.speed);
       setDownload(downloadInfoData);
       setPing(uploadInfoData.ping);

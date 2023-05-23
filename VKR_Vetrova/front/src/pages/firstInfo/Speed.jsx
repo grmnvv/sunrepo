@@ -6,7 +6,7 @@ import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
 import { observer } from "mobx-react-lite";
 import Header from "../profile/ip/components/Header";
 
-const SpeedTest = () => {
+const Speed = () => {
   const { store } = useContext(Context);
   const [ipInfo, setIpInfo] = useState(null);
   const [download, setDownload] = useState("");
@@ -28,9 +28,6 @@ const SpeedTest = () => {
     );
     setBrowserInfo(navigator.userAgent);
     store.refresh();
-  }, []);
-
-  useEffect(() => {
     if ("getBattery" in navigator) {
       navigator.getBattery().then((battery) => {
         setBatteryInfo({
@@ -40,6 +37,13 @@ const SpeedTest = () => {
       });
     }
   }, []);
+
+  
+  useEffect(() => {
+    if(store.isAuth){
+      store.getSettings();
+    }
+  }, [store.isAuth]);
 
   async function fetchData() {
     setCheck(true);
@@ -94,90 +98,92 @@ const SpeedTest = () => {
   }
 
   return (
-    <div className={styles.container}>
-      <Header email={store.user.email} />
-      <div className={styles.centered}>
-        {!check && (
-          <div className={styles.firstText}>
-            <div>Привет, {store.isAuth ? store.user.email : "гость"}</div>
-            <div
-              style={{
-                cursor: "pointer",
-                width: "100%",
-                textAlign: "center",
-                margin: "30px 0 0 0",
-              }}
-              onClick={() => {
-                fetchData();
-              }}
-            >
-              Провести тест
+    <div className={styles.absolute}>
+      <Header email={store.user.email} style={{position:'absolute'}} />
+      <div className={styles.container}>
+        <div className={styles.centered}>
+          {!check && (
+            <div className={styles.firstText}>
+              <div style={{textAlign:'center'}}>Привет, {store.isAuth ? store.user.email : "гость"}</div>
+              <div
+                style={{
+                  cursor: "pointer",
+                  width: "100%",
+                  textAlign: "center",
+                  margin: "30px 0 0 0",
+                }}
+                onClick={() => {
+                  fetchData();
+                }}
+              >
+                Провести тест
+              </div>
             </div>
-          </div>
-        )}
-        {check && (
-          <div>
-            {speedType >= 1 && (
-              <div>
-                <h2>Скорость соединения: </h2>
-                <hr />
+          )}
+          {check && (
+            <div>
+              {speedType >= 1 && (
                 <div>
-                  <p>Скорость скачивания: {download} мб/c</p>
-                  <p>Скорость загрузки: {upload} мб/c</p>
-                  <p>Ping: {ping} мс</p>
+                  <h2>Скорость соединения: </h2>
+                  <hr />
+                  <div>
+                    <p>Скорость скачивания: {download} мб/c</p>
+                    <p>Скорость загрузки: {upload} мб/c</p>
+                    <p>Ping: {ping} мс</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {speedType >= 2 && (
-              <div>
-                <h2>Информация о браузере и компьютере:</h2>
-                <hr />
+              {speedType >= 2 && (
                 <div>
-                  <p>{browserInfo}</p>
-                  <p>Уровень заряда батареи: {batteryInfo.level}%</p>
-                  <p>Зарядка: {batteryInfo.charging ? "да" : "нет"}</p>
+                  <h2>Информация о браузере и компьютере:</h2>
+                  <hr />
+                  <div>
+                    <p>{browserInfo}</p>
+                    <p>Уровень заряда батареи: {batteryInfo.level}%</p>
+                    <p>Зарядка: {batteryInfo.charging ? "да" : "нет"}</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {speedType >= 3 && (
-              <div>
-                <h2>Информация по IP:</h2>
-                <hr />
-                {ipInfo && (
-                  <ul>
-                    <li>IP: {ipInfo.ip}</li>
-                    <li>Город: {ipInfo.city}</li>
-                    <li>Страна: {ipInfo.country_name}</li>
-                  </ul>
-                )}
-                {position ? (
-                  <YMaps
-                    query={{ apikey: "ddeefd86-2d2c-4bd1-a1ec-34b1e774b08c" }}
-                  >
-                    <Map
-                      defaultState={{
-                        center: position,
-                        zoom: 11,
-                      }}
-                      width="700px"
-                      height="400px"
-                      options={{ suppressMapOpenBlock: true }}
+              {speedType >= 3 && (
+                <div>
+                  <h2>Информация по IP:</h2>
+                  <hr />
+                  {ipInfo && (
+                    <ul>
+                      <li>IP: {ipInfo.ip}</li>
+                      <li>Город: {ipInfo.city}</li>
+                      <li>Страна: {ipInfo.country_name}</li>
+                    </ul>
+                  )}
+                  {position ? (
+                    <YMaps
+                      query={{ apikey: "ddeefd86-2d2c-4bd1-a1ec-34b1e774b08c" }}
                     >
-                      <Placemark geometry={position} />
-                    </Map>
-                  </YMaps>
-                ) : (
-                  <h1>Loading...</h1>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+                      <Map
+                        defaultState={{
+                          center: position,
+                          zoom: 11,
+                        }}
+                        width="700px"
+                        height="400px"
+                        options={{ suppressMapOpenBlock: true }}
+                      >
+                        <Placemark geometry={position} />
+                      </Map>
+                    </YMaps>
+                  ) : (
+                    <h1>Loading...</h1>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-export default observer(SpeedTest);
+export default observer(Speed);

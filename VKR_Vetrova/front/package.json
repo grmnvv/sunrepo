@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@mui/material": "^5.13.2",
     "@pbe/react-yandex-maps": "^1.2.4",
     "@react-google-maps/api": "^2.18.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.3.4",
+    "file-saver": "^2.0.5",
     "konva": "^9.0.1",
     "mobx": "^6.8.0",
     "mobx-react-lite": "^3.4.3",
@@ -18,7 +20,8 @@
     "react-konva": "^18.2.7",
     "react-router-dom": "^6.9.0",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",

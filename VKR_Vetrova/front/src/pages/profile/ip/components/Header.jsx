@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { Context } from '../../../..';
 
-const Header = ({ email }) => {
+const Header = ({ email, style }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const { store } = useContext(Context);
-
+  
   const handleClick = () => {
     setIsOpen(!isOpen);
   };
@@ -16,6 +16,7 @@ const Header = ({ email }) => {
   const handleLogout = () => {
     store.logout();
     setIsOpen(false);
+    navigate('/');
   };
 
   const handleTest = () => {
@@ -32,7 +33,7 @@ const Header = ({ email }) => {
     setIsOpen(false);
   }
   return (
-    <div className={styles.header}>
+    <div className={styles.header} style={style}>
       <h1 className={styles.logo}>Rocket</h1>
 
       {email ? <div className={styles.menu} onClick={handleClick}>

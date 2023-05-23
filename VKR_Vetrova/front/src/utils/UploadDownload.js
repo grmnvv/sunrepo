@@ -34,6 +34,16 @@ export default class NetworkSpeedCheck {
     }
   }
 
+
+
+  static generateTestData(sizeInKb) {
+    const iterations = sizeInKb * 1000; //get byte count
+    let result = "";
+    for (let index = 0; index < iterations; index++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
   static async checkUploadSpeed(fileSizeInBytes = 2000000) {
     let startTime;
     const defaultData = this.generateTestData(fileSizeInBytes / 1000);

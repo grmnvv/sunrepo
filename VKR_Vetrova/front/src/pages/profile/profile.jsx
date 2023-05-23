@@ -10,6 +10,9 @@ import SpeedResults from "./ip/components/SpeedResults";
 import ActivePointInfo from "./ip/components/ActivePointInfo";
 import IpHistory from "./ip/components/IpHistory";
 import Header from "./ip/components/Header";
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import DropdownButton from "./dropDown/dropDownButton";
 
 function useWindowSize() {
   const [windowSize, setWindowSize] = useState({
@@ -118,6 +121,13 @@ const ProfilePage = () => {
     });
   }, [store.ConnectionArray, speedType, fixedCanvasWidth]);
 
+  const toggleSpeedType = () => {
+    setSpeedType(prevSpeedType => prevSpeedType === 'downloadSpeed' ? 'uploadSpeed' : 'downloadSpeed');
+  };
+  const handleFormatSelected = (format) => {
+    handleDownload(format);
+  };
+
   const bestResultIndex = store.ConnectionArray.reduce(
     (maxIndex, item, index, array) => {
       return item.downloadSpeed > array[maxIndex].downloadSpeed
@@ -155,7 +165,7 @@ const ProfilePage = () => {
     if (point) {
       const height =
         point[speedType] *
-        ((canvasRef.current.height - 40) /
+        ((canvasRef.current.height - 40) /  
           Math.max(...store.ConnectionArray.map((item) => item[speedType])));
       if (Math.abs(canvasRef.current.height - height - y) < 5) {
         const time = new Date(point.createdAt);
@@ -170,16 +180,63 @@ const ProfilePage = () => {
       }
     }
   };
+
+
+  const handleDownload = (format) => {
+    // Удаление ненужных полей и преобразование createdAt
+    const filterData = (data) => data.map(item => {
+      const { __v, user, _id, ...rest } = item;
+      rest.createdAt = new Date(rest.createdAt).toLocaleDateString()
+      return rest;
+    });
+  
+    switch (format) {
+      case 'json':
+        const reportData = {
+          connectionInfo: filterData(store.ConnectionArray),
+          ipInfo: filterData(store.IpArray)
+        };
+        const json = JSON.stringify(reportData, null, 2);
+        const blobJson = new Blob([json], { type: 'text/plain;charset=utf-8' });
+        saveAs(blobJson, 'report.json');
+        break;
+      case 'csv':
+        const headersConnection = ["createdAt", "downloadSpeed", "uploadSpeed", "ping"];
+        const csvConnection = filterData(store.ConnectionArray).map(row => headersConnection.map(header => row[header]).join(',')).join('\n');
+        const headersIp = ["createdAt", "ipAddress", "city", "latitude", "longitude"];
+        const csvIp = filterData(store.IpArray).map(row => headersIp.map(header => row[header]).join(',')).join('\n');
+        const csv = `Connection Info:\n${headersConnection.join(',')}\n${csvConnection}\n\nIP Info:\n${headersIp.join(',')}\n${csvIp}`;
+        const blobCsv = new Blob([csv], { type: 'text/plain;charset=utf-8' });
+        saveAs(blobCsv, 'report.csv');
+        break;
+      case 'excel':
+        const wsConnection = XLSX.utils.json_to_sheet(filterData(store.ConnectionArray));
+        const wsIp = XLSX.utils.json_to_sheet(filterData(store.IpArray));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, wsConnection, 'Connection Info');
+        XLSX.utils.book_append_sheet(wb, wsIp, 'IP Info');
+        XLSX.writeFile(wb, 'report.xlsx');
+        break;
+      default:
+        break;
+    }
+  };
+  
+
   return (
     <div className={styles.container}>
       <div className={styles.centered}>
         <Header email={store.user.email} />
         <h2 className={styles.profileInfo}>Это ваш профиль</h2>
+        <button onClick={toggleSpeedType}>
+        {speedType === 'downloadSpeed' ? 'Сменить на Upload Speed' : 'Сменить на Download Speed'}
+      </button>
         <Histogram
           handleMouseMove={handleMouseMove}
           canvasRef={canvasRef}
           fixedCanvasWidth={fixedCanvasWidth}
         />
+        <DropdownButton onSelectFormat={handleFormatSelected} />
         <SpeedResults bestResult={bestResult} averageResult={averageResult} />
         {activePoint && (
           <ActivePointInfo point={activePoint} position={pointPosition} />

@@ -22,6 +22,9 @@ export default class AuthService {
   static async getInfoIp() {
     return $api.get("/getInfoIp");
   }
+  static async getSettings() {
+    return $api.get("/getsettings");
+  }
 
   static async getInfoConnection() {
     return $api.get("/getInfoConnection");
@@ -38,4 +41,15 @@ export default class AuthService {
       ping,
     });
   }
+  static async updateSettings(downloadSpeed, uploadSpeed, ping, mb, ipSettings, browserSettings) {
+    return $api.post("/updateSettings", {
+      downloadSpeed,
+      uploadSpeed,
+      ping,
+      mb,
+      ipSettings,
+      browserSettings
+    });
+  }
+
 }

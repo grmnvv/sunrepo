@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Context } from "../..";
 import styles from "./register.module.css";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,11 @@ const RegisterPage = () => {
       console.log(e);
     }
   }
+  useEffect(() => {
+    if(store.isAuth){
+      navigate('/profile')
+    }
+  }, [store.isAuth])
 
   return (
     <div className={styles.container}>
@@ -51,7 +56,7 @@ const RegisterPage = () => {
           />
         </div>
         <div className={styles.under}>
-          <p style={{ cursor: "pointer" }} onClick={() => navigate("/login")}>
+          <p style={{ cursor: "pointer" }}>
             Уже зарегистрированы? Войти
           </p>
         </div>
