@@ -4,64 +4,65 @@ import { Context } from "../..";
 import styles from "./login.module.css";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import Header from "../profile/ip/components/Header";
 
 const LoginPage = () => {
   const { store } = useContext(Context);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  async function handleLogin(email, password) {
-    try {
+
+  async function handleLogin() {
+
+      console.log('gfs')
       await store.login(email, password);
-    } catch (e) {
-      console.log(e);
-    }
+
   }
   useEffect(() => {
-    store.refresh()
-  },[])
+    store.refresh();
+  }, []);
   useEffect(() => {
-    if(store.isAuth){
-      navigate('/')
+    if (store.isAuth) {
+      navigate("/");
     }
-  },[store.isAuth])
+  }, [store.isAuth]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.centered}>
-        <div className={styles.enter}>Вход</div>
-        <div className={styles.element}>
-          <p>Введите почту</p>
-          <input
-            type="text"
-            onChange={(e) => setEmail(e.target.value)}
-            value={email}
-            placeholder="Email"
-          />
-        </div>
-        <div className={styles.element}>
-          <p>Введите пароль</p>
-          <input
-            type="password"
-            onChange={(e) => setPassword(e.target.value)}
-            value={password}
-            placeholder="password"
-          />
-        </div>
-        <div className={styles.under}>
-           <p style={{cursor: 'pointer'}} onClick={() => {navigate('/registration')}}>Зарегистрироваться</p> 
-           <p style={{cursor: 'pointer'}}  onClick={() => {navigate('/reset-password')}}>Забыл пароль</p>
-        </div>
-        <div className={styles}>
-          <button
-            onClick={() => {
-              handleLogin(email, password);
-            }}
-          >
-            Войти
+    <div className={styles.main}>
+      <Header />
+      <div className={styles.container}>
+        <div className={styles.block}>
+          <div className={styles.label}>Вход</div>
+          <div className={styles.inputs}>
+            <div className={styles.inputsLabel}>email</div>
+            <input
+              type="text"
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
+              placeholder="введите email"
+            />
+          </div>
+          <div className={styles.inputs}>
+            <div className={styles.inputsLabel}>пароль</div>
+            <input
+              type="password"
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
+              placeholder="введите пароль"
+            />
+          </div>
+          <button className={styles.button} onClick={() => {handleLogin()}}>
+            войти
           </button>
         </div>
-        <p>Остаться гостем</p>
+        <div className={styles.underBlock}>
+          <div className={styles.underChild}>
+            <button className={styles.underChildButton} onClick={() => navigate('/registration')}>зарегистрироваться</button>
+          </div>
+          <div className={styles.underChild}>
+            <button className={styles.underChildButton} onClick={() => navigate('/reset-password')}>забыл пароль</button>
+          </div>
+        </div>
       </div>
     </div>
   );

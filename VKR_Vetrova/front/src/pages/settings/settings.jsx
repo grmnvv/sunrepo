@@ -1,3 +1,4 @@
+
 import { observer } from "mobx-react-lite";
 import React, { useState, useEffect, useContext } from "react";
 import { Context } from "../..";
@@ -11,30 +12,8 @@ const Settings = () => {
   const [sizePing, setSizePing] = useState(0);
   const [unit, setUnit] = useState("");
 
-  const [ipSettings, setIpSettings] = useState([
-    { id: "index", display: "Индекс", isChecked: false },
-    { id: "provider", display: "Провайдер", isChecked: false },
-    { id: "utc", display: "UTC", isChecked: false },
-    { id: "connectionVersion", display: "Версия соединения", isChecked: false },
-  ]);
-
-  const [browserSettings, setBrowserSettings] = useState([
-    { id: "appCodeName", display: "browser code name", isChecked: false },
-    { id: "appName", display: "browser name", isChecked: false },
-    { id: "appVersion", display: "browser version", isChecked: false },
-    { id: "cookieEnabled", display: "browser cookies", isChecked: false },
-    { id: "platform", display: "browser platform", isChecked: false },
-    {
-      id: "product",
-      display: "browser engine name",
-      isChecked: false,
-    },
-    {
-      id: "userAgent",
-      display: "browser user-agent header",
-      isChecked: false,
-    },
-  ]);
+  const [ipSettings, setIpSettings] = useState([]);
+  const [browserSettings, setBrowserSettings] = useState([]);
 
   useEffect(() => {
     store.refresh();
@@ -43,155 +22,129 @@ const Settings = () => {
 
   useEffect(() => {
     const settings = store.Settings;
-    if(settings.ipSettings){
+    if (settings.ipSettings && settings.browserSettings) {
       setSizeDownload(settings.download);
       setSizeUpload(settings.upload);
       setSizePing(settings.ping);
       setUnit(settings.mb);
-  
-  
-      const ipSettingsFromStore = [
-        { id: "index", display: "Индекс", isChecked: settings.ipSettings.index },
-        { id: "provider", display: "Провайдер", isChecked: settings.ipSettings.provider },
-        { id: "utc", display: "UTC", isChecked: settings.ipSettings.utc },
-        { id: "connectionVersion", display: "Версия соединения", isChecked: settings.ipSettings.connectionVersion },
-      ];
-  
-      const browserSettingsFromStore = [
-        { id: "appCodeName", display: "Browser Code Name", isChecked: settings.browserSettings.appCodeName },
-        { id: "appName", display: "Browser Name", isChecked: settings.browserSettings.appName },
-        { id: "appVersion", display: "Browser Version", isChecked: settings.browserSettings.appVersion },
-        { id: "cookieEnabled", display: "Browser Cookies", isChecked: settings.browserSettings.cookieEnabled },
-        { id: "platform", display: "Browser Platform", isChecked: settings.browserSettings.platform },
-        { id: "product", display: "Browser Engine Name", isChecked: settings.browserSettings.product },
-        { id: "userAgent", display: "Browser User-Agent Header", isChecked: settings.browserSettings.userAgent },
-      ];
-  
-      setIpSettings(ipSettingsFromStore);
-      setBrowserSettings(browserSettingsFromStore);
-    }
-    
-    
 
+      setIpSettings(
+        settings.ipSettings.map((setting) => ({
+          key: setting.key,
+          display: setting.display,
+          isChecked: setting.isChecked,
+        }))
+      );
+
+      setBrowserSettings(
+        settings.browserSettings.map((setting) => ({
+          key: setting.key,
+          display: setting.display,
+          isChecked: setting.isChecked,
+        }))
+      );
+    }
   }, [store.Settings]);
 
-
-  useEffect(() => {
-    if(sizeDownload, sizeUpload, sizePing, unit){
-      handleUpdate()
-    }
-  }, [ipSettings, browserSettings]);
-
-  function handleUpdate(mb = unit) {
-    store.updateSettings(sizeDownload, sizeUpload, sizePing, mb, ipSettings, browserSettings);
+  function handleUpdate() {
+    store.updateSettings(
+      sizeDownload,
+      sizeUpload,
+      sizePing,
+      unit,
+      ipSettings,
+      browserSettings
+    );
   }
-  
+
   return (
     <>
       <Header email={store.user.email} />
       <div className={styles.container}>
-        <div className={styles.centered}>
-          <div className={styles.article}>Это ваши настройки</div>
-          <div>
-            <div className={styles.change}>
-              <div className={styles.textChange}>Размер пакета скачивания</div>
-              <input
-                className={styles.inputs}
-                type="number"
-                value={sizeDownload}
-                onBlur={() => handleUpdate()}
-                onChange={(e) => {
-                  setSizeDownload(e.target.value);
-                }}
-              />
-            </div>
-            <div className={styles.change}>
-              <div className={styles.textChange}>Размер пакета загрузки</div>
-              <input
-                className={styles.inputs}
-                type="number"
-                value={sizeUpload}
-                onBlur={() => handleUpdate()}
-                onChange={(e) => {
-                  setSizeUpload(e.target.value);
-                }}
-              />
-            </div>
-            <div className={styles.change}>
-              <div className={styles.textChange}>Размер пакета пинга</div>
-              <input
-                className={styles.inputs}
-                type="number"
-                value={sizePing}
-                onBlur={() => handleUpdate()}
-                onChange={(e) => {
-                  setSizePing(e.target.value);
-                }}
-              />
-            </div>
+      <div style={{marginTop:'150px'}} className={styles.settingsBlock}>
+          <div className={styles.blockTitle}>Настройки соединения</div>
+          <div className={styles.change}>
+            <div className={styles.textChange}>Размер пакета скачивания</div>
+            <input
+              className={styles.inputs}
+              type="number"
+              value={sizeDownload}
+              onBlur={handleUpdate}
+              onChange={(e) => {
+                setSizeDownload(e.target.value);
+              }}
+            />
           </div>
           <div className={styles.change}>
-            <div className={styles.textChange}>Отображение скорости</div>
-            <div className={styles.buttonGroup}>
-              <button
-                className={`${styles.unitButton} ${
-                  unit === "mbps" ? styles.active : ""
-                }`}
-                onClick={() => {
-                  setUnit("mbps");
-                  handleUpdate("mbps");
-                }}
-              >
-                мб/с
-              </button>
-              <button
-                className={`${styles.unitButton} ${
-                  unit === "kbps" ? styles.active : ""
-                }`}
-                onClick={() => {
-                  setUnit("kbps");
-                  handleUpdate("kbps");
-                }}
-              >
-                кб/с
-              </button>
-            </div>
+            <div className={styles.textChange}>Размер пакета загрузки</div>
+            <input
+              className={styles.inputs}
+              type="number"
+              value={sizeUpload}
+              onBlur={handleUpdate}
+              onChange={(e) => {
+                setSizeUpload(e.target.value);
+              }}
+            />
           </div>
-          <div className={styles.article}>Дополнительные настройки IP</div>
+          <div className={styles.change}>
+            <div className={styles.textChange}>Размер пакета пинга</div>
+            <input
+              className={styles.inputs}
+              type="number"
+              value={sizePing}
+              onBlur={handleUpdate}
+              onChange={(e) => {
+                setSizePing(e.target.value);
+              }}
+            />
+          </div>
+        </div>
+        <div className={styles.settingsBlock}>
+          <div className={styles.blockTitle}>Настройки IP</div>
           {ipSettings.map((item) => (
-            <div className={styles.ipAddConnection} key={item.id}>
+            <div className={styles.settingItem} key={item.key}>
               <p>{item.display}</p>
-              <input
-                type="checkbox"
-                checked={item.isChecked}
-                onChange={() => {
-                  const index = ipSettings.findIndex((x) => x.id === item.id);
-                  ipSettings[index].isChecked = !item.isChecked;
-                  setIpSettings([...ipSettings]);
-                }}
-              />
-            </div>
-          ))}
-          <div className={styles.article}>
-            Дополнительная информация о браузере
-          </div>
-          {browserSettings.map((item) => (
-            <div className={styles.change} key={item.id}>
-              <p>{item.display}</p>
-              <input
-                type="checkbox"
-                checked={item.isChecked}
-                onChange={() => {
-                  const index = browserSettings.findIndex(
-                    (x) => x.id === item.id
-                  );
-                  browserSettings[index].isChecked = !item.isChecked;
-                  setBrowserSettings([...browserSettings]);
-                }}
-              />
+              <label className={styles.checkboxContainer}>
+                <input
+                  type="checkbox"
+                  checked={item.isChecked}
+                  onChange={() => {
+                    const updatedIpSettings = ipSettings.map((x) =>
+                      x.key === item.key ? { ...x, isChecked: !x.isChecked } : x
+                    );
+                    setIpSettings(updatedIpSettings);
+                  }}
+                />
+                <span className={styles.checkmark}></span>
+              </label>
             </div>
           ))}
         </div>
+        <div className={styles.settingsBlock}>
+          <div className={styles.blockTitle}>Настройки браузера</div>
+          {browserSettings.map((item) => (
+            <div className={styles.settingItem} key={item.key}>
+              <p>{item.display}</p>
+              <label className={styles.checkboxContainer}>
+                <input
+                  type="checkbox"
+                  checked={item.isChecked}
+                  onChange={() => {
+                    const updatedBrowserSettings = browserSettings.map((x) =>
+                      x.key === item.key ? { ...x, isChecked: !x.isChecked } : x
+                    );
+                    setBrowserSettings(updatedBrowserSettings);
+                  }}
+                />
+                <span className={styles.checkmark}></span>
+              </label>
+            </div>
+          ))}
+        </div>
+        <button className={styles.saveButton} onClick={handleUpdate}>
+          Сохранить настройки
+        </button>
       </div>
     </>
   );

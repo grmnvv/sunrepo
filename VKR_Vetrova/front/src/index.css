@@ -6,10 +6,24 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   width: 100%;
-  height: 100vh;
+  height: 100%;
 }
-
-
+#root{
+  width: 100%;
+  height: 100%;
+}
+@font-face {
+  font-family: "Gill Sans light";
+  src: local("Gill Sans light"),
+   url("./assets/Gill\ Sans\ Light.otf") format("opentype");
+   font-weight: bold;
+ }
+ @font-face {
+  font-family: "Gill Sans Ru";
+  src: local("Gill Sans Ru"),
+   url("./assets/Gill\ Sans\ Ru.ttf") format("truetype");
+   font-weight: bold;
+ }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

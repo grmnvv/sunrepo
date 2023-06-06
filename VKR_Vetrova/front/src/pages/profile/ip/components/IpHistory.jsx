@@ -1,23 +1,50 @@
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { observer } from "mobx-react-lite";
+import { YMaps, Map, Placemark } from "@pbe/react-yandex-maps";
 import styles from './components.module.css';
-import React from 'react';
-import { observer } from 'mobx-react-lite';
 
-const IpHistory = ({ IpArray }) => {
+const IpHistoryDetails = ({ IpArray }) => {
+  const [select, setSelect] = useState({});
+
+  const toggleSelect = (id) => {
+    setSelect(prevSelect => ({ ...prevSelect, [id]: !prevSelect[id] }));
+  }
+
   return (
-    <div>
-      <h2 className={styles.ipHistoryTitle}>IP History</h2>
-      <div className={styles.ipHistoryContainer}>
-        {IpArray.map((item, index) => (
-          <div key={index} className={styles.ipItem}>
-            <p>IP: {item.ipAddress}</p>
-            <p>Дата создания: {new Date(item.createdAt).toLocaleString()}</p>
-            <Link to={`/profile/ip/${item._id}`}>Открыть подробнее</Link>
-          </div>
-        ))}
+    <div className={styles.ipContainer}>
+      <h2 className={styles.ipLabel}>IP History</h2>
+      <div className={styles.ipBlock}>
+        {IpArray.map((item, index) => {
+          const ipDetails = IpArray.find(({ _id }) => _id === item._id);
+          return (
+            <div key={index} className={styles.ipInputs}>
+              <p>Дата создания: {new Date(item.createdAt).toLocaleString()}</p>
+              <p>IP: {ipDetails.ipAddress}</p>
+              <p>City: {ipDetails.city}</p>
+              <button className={styles.unitButton} onClick={() => toggleSelect(item._id)}>показать карту</button>
+              {ipDetails.latitude && ipDetails.longitude && select[item._id] && (
+                <div className={styles.mapContainer}>
+                  <YMaps query={{ apikey: "ddeefd86-2d2c-4bd1-a1ec-34b1e774b08c" }}>
+                    <Map
+                      defaultState={{
+                        center: [ipDetails.latitude, ipDetails.longitude],
+                        zoom: 10,
+                      }}
+                      width="600px"
+                      height="300px"
+                      options={{ suppressMapOpenBlock: true }}
+                    >
+                    </Map>
+                  </YMaps>
+                </div>
+              )}
+              <hr />
+            </div>
+          )
+        })}
       </div>
     </div>
   );
 };
 
-export default observer(IpHistory);
+export default observer(IpHistoryDetails);

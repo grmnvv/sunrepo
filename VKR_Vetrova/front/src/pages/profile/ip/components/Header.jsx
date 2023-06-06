@@ -20,7 +20,7 @@ const Header = ({ email, style }) => {
   };
 
   const handleTest = () => {
-    navigate('/info');
+    navigate('/');
     setIsOpen(false);
   };
 

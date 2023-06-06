@@ -15,17 +15,17 @@ const DropdownButton = ({ onSelectFormat }) => {
 
   return (
     <div className={styles.menu} onClick={handleClick}>
-      <p>Скачать отчет</p>
+      <p className={styles.downloadBtn}>cкачать отчет</p>
       {isOpen && (
         <div className={styles.dropdownReport}>
           <button className={styles.dropdownItem} onClick={() => handleSelect('json')}>
-            JSON
+            json
           </button>
           <button className={styles.dropdownItem} onClick={() => handleSelect('csv')}>
-            CSV
+            csv
           </button>
           <button className={styles.dropdownItem} onClick={() => handleSelect('excel')}>
-            Excel
+            excel
           </button>
         </div>
       )}

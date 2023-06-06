@@ -14,48 +14,27 @@ import { SettingsModel } from "../models/settingsModel.js";
 
 class UserService {
 
-    async registration(email, password, login) {
+    async registration(email, password, ) {
       const candidate = await UserModel.findOne({ email });
       if (candidate) {
         throw ApiError.BadRequest(
           `Пользователь с почтовым адресом ${email} уже существует`
         );
       }
-      const candidate2 = await UserModel.findOne({ login });
 
-      if (candidate2) {
-        throw ApiError.BadRequest(
-          `Пользователь с логином ${login} уже существует`
-        );
-      }
       const hashPassword = await bcrypt.hash(password, 3);
       const salt = uuidv4();
       const activationLink = uuidv4();
       console.log(activationLink)
 
-      const user = await UserModel.create({email: email, password: hashPassword, login:login, isActivated: false, salt: salt})
+      const user = await UserModel.create({email: email, password: hashPassword, isActivated: false, salt: salt})
       console.log(user)
       const userDto = new UserDto(user);
 
       const tokens = tokenService.generateTokens({...userDto})
 
       await tokenService.saveToken(userDto.id, tokens.refreshToken);
-      const defaultIpSettings = {
-        index: false,
-        provider: false,
-        utc: false,
-        connectionVersion: false
-      };
 
-      const defaultBrowserSettings = {
-        appCodeName: false,
-        appName: false,
-        appVersion: false,
-        cookieEnabled: false,
-        platform: false,
-        product: false,
-        userAgent: false
-      };
 
       const newSettings = await SettingsModel.create({
         user: userDto.id,
@@ -63,9 +42,67 @@ class UserService {
         upload: '2000000',
         ping: '64',
         mb: 'mbps',
-        ipSettings: defaultIpSettings,
-        browserSettings: defaultBrowserSettings
+        ipSettings: [
+          {
+            key: 'postal',
+            display: 'Индекс',
+            isChecked: false,
+          },
+          {
+            key: 'org',
+            display: 'Провайдер',
+            isChecked: false,
+          },
+          {
+            key: 'utc_offset',
+            display: 'UTC',
+            isChecked: false,
+          },
+          {
+            key: 'version',
+            display: 'Версия соединения',
+            isChecked: false,
+          },
+        ],
+        browserSettings: [
+          {
+            key: 'appCodeName',
+            display: 'Имя кода браузера',
+            isChecked: false,
+          },
+          {
+            key: 'appName',
+            display: 'Имя браузера',
+            isChecked: false,
+          },
+          {
+            key: 'appVersion',
+            display: 'Версия браузера',
+            isChecked: false,
+          },
+          {
+            key: 'cookieEnabled',
+            display: 'Куки в браузере',
+            isChecked: false,
+          },
+          {
+            key: 'platform',
+            display: 'Платформа браузера',
+            isChecked: false,
+          },
+          {
+            key: 'product',
+            display: 'Имя движка браузера',
+            isChecked: false,
+          },
+          {
+            key: 'userAgent',
+            display: 'User-Agent заголовок браузера',
+            isChecked: false,
+          },
+        ],
       });
+      
 
   
       
@@ -196,36 +233,36 @@ class UserService {
       const connectionInfo = ConnectionInfoModel.create({user: userData.id, downloadSpeed: downloadSpeed, uploadSpeed: uploadSpeed, ping: ping})
       return connectionInfo
     }
-    async updateSettings(refreshToken, downloadSpeed, uploadSpeed, ping, mb, ipSettingsFromStore, browserSettingsFromStore){
+    async updateSettings(refreshToken, downloadSpeed, uploadSpeed, ping, mb, ipSettings, browserSettings) {
       if (!refreshToken) {
         throw ApiError.UnauthorizedError();
       }
-      const user = tokenService.validateRefreshToken(refreshToken)
-  
-      // Convert arrays to objects
-      const ipSettings = {};
-      ipSettingsFromStore.forEach(setting => {
-        ipSettings[setting.id] = setting.isChecked;
-      });
-  
-      const browserSettings = {};
-      browserSettingsFromStore.forEach(setting => {
-        browserSettings[setting.id] = setting.isChecked;
-      });
-  
+      const user = tokenService.validateRefreshToken(refreshToken);
+    
       const update = await SettingsModel.findOneAndUpdate(
         { user: user.id },
-        { 
-          download: downloadSpeed == '' ? '2000000' : downloadSpeed, 
-          upload: uploadSpeed == '' ? '2000000' : uploadSpeed, 
-          ping: ping == '' ? '64' : ping, 
-          mb:mb,
-          ipSettings,
-          browserSettings
+        {
+          download: downloadSpeed === '' ? '2000000' : downloadSpeed,
+          upload: uploadSpeed === '' ? '2000000' : uploadSpeed,
+          ping: ping === '' ? '64' : ping,
+          mb: mb,
+          ipSettings: ipSettings.map(setting => ({
+            key: setting.key,
+            display: setting.display,
+            isChecked: setting.isChecked,
+          })),
+          browserSettings: browserSettings.map(setting => ({
+            key: setting.key,
+            display: setting.display,
+            isChecked: setting.isChecked,
+          })),
         }
       );
-      return update
+      console.log(update)
+      return update;
     }
+    
+    
   
     
     
