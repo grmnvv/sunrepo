@@ -21,7 +21,7 @@ const IpHistoryDetails = ({ IpArray }) => {
               <p>Дата создания: {new Date(item.createdAt).toLocaleString()}</p>
               <p>IP: {ipDetails.ipAddress}</p>
               <p>City: {ipDetails.city}</p>
-              <button className={styles.unitButton} onClick={() => toggleSelect(item._id)}>показать карту</button>
+              <button style={{fontSize:'16px'}} className={styles.button} onClick={() => toggleSelect(item._id)}>показать карту</button>
               {ipDetails.latitude && ipDetails.longitude && select[item._id] && (
                 <div className={styles.mapContainer}>
                   <YMaps query={{ apikey: "ddeefd86-2d2c-4bd1-a1ec-34b1e774b08c" }}>

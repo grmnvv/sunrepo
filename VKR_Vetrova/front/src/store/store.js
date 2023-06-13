@@ -71,22 +71,26 @@ export default class Store {
   }
   async login(email, password) {
     try {
+      this.setError('')
       console.log(email, password)
       const response = await AuthService.login(email, password);
       localStorage.setItem("token", response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
     } catch (e) {
+      this.setError(e.response?.data?.message)
       console.error(e.response?.data?.message);
     }
   }
   async registration(email, password, login) {
     try {
+      this.setError('')
       const response = await AuthService.registration(email, password, login);
       localStorage.setItem("token", response.data.accessToken);
       this.setAuth(true);
       this.setUser(response.data.user);
     } catch (e) {
+      this.setError(e.response?.data?.message)
       console.error(e.response?.data?.message);
     }
   }

@@ -142,6 +142,9 @@ const RegisterPage = () => {
               <div className={styles.errorText}>Пароли не совпадают</div>
             )}
           </div>
+          <div className={styles.error}>
+            {store.error !== '' && store.error}
+          </div>
           <button className={styles.button} onClick={() => handleRegister()}>
             зарегистрироваться
           </button>

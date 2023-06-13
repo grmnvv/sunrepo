@@ -137,7 +137,7 @@ const ProfilePage = () => {
 
   const bestResultIndex = store.ConnectionArray.reduce(
     (maxIndex, item, index, array) => {
-      return item.downloadSpeed > array[maxIndex].downloadSpeed
+      return item[speedType] > array[maxIndex][speedType]
         ? index
         : maxIndex;
     },
@@ -147,14 +147,14 @@ const ProfilePage = () => {
 
   const averageDownloadSpeed =
     store.ConnectionArray.reduce(
-      (total, item) => total + item.downloadSpeed,
+      (total, item) => total + item[speedType],
       0
     ) / store.ConnectionArray.length;
   console.log(averageDownloadSpeed);
   const closestToAverageIndex = store.ConnectionArray.reduce(
     (closestIndex, item, index, array) => {
-      return Math.abs(item.downloadSpeed - averageDownloadSpeed) <
-        Math.abs(array[closestIndex].downloadSpeed - averageDownloadSpeed)
+      return Math.abs(item[speedType] - averageDownloadSpeed) <
+        Math.abs(array[closestIndex][speedType] - averageDownloadSpeed)
         ? index
         : closestIndex;
     },
@@ -256,12 +256,15 @@ const ProfilePage = () => {
       <div className={styles.centered}>
         <div className={styles.profile}>Профиль</div>
         <div className={styles.blockGraphic}>
-          <div className={styles.historyLabel}>История измерений</div>
+          <div className={styles.historyLabel}>История измерений {speedType == 'downloadSpeed' ? 'скорости скачивания' : 'скорости загрузки'}</div>
           <Histogram
             handleMouseMove={handleMouseMove}
             canvasRef={canvasRef}
             fixedCanvasWidth={fixedCanvasWidth}
           />
+          <div className={styles.changeType}>
+            <button className={styles.button} onClick={() => {toggleSpeedType()}}>{speedType == 'downloadSpeed' ? 'uploadSpeed' : 'downloadSpeed'}</button>
+          </div>
           <SpeedResults bestResult={bestResult} averageResult={averageResult} />
           {activePoint && (
             <ActivePointInfo point={activePoint} position={pointPosition} />

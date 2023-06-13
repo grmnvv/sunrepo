@@ -40,3 +40,7 @@
   display: flex;
   margin-bottom: 50px;
 }
+.changeType{
+  width: 100%;
+  text-align: center;
+}

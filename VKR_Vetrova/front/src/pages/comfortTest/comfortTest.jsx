@@ -203,7 +203,7 @@ const ComfortTest = () => {
             <p>Загрузка карты...</p>
           )}
           <button className={styles.logBtn} onClick={() => navigate("/")}>
-            Вернуться
+            назад
           </button>
         </div>
       </div>

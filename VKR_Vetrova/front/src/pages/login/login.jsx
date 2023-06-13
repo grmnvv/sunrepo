@@ -51,6 +51,10 @@ const LoginPage = () => {
               placeholder="введите пароль"
             />
           </div>
+          <div className={styles.error}>
+            {store.error !== '' && store.error}
+          </div>
+          
           <button className={styles.button} onClick={() => {handleLogin()}}>
             войти
           </button>

@@ -34,7 +34,7 @@ const Header = ({ email, style }) => {
   }
   return (
     <div className={styles.header} style={style}>
-      <h1 className={styles.logo}>Rocket</h1>
+      <h1 className={styles.logo} onClick={() => {navigate('/')}}>connectly</h1>
 
       {email ? <div className={styles.menu} onClick={handleClick}>
         <p>{email}</p>
@@ -54,7 +54,7 @@ const Header = ({ email, style }) => {
             </button>
           </div>
         )}
-      </div> : <button onClick={() => {navigate('/login')}}>Войти</button>}
+      </div> : <button style={{fontSize:'18px'}} className={styles.button} onClick={() => {navigate('/login')}}>войти</button>}
     </div>
   );
 };

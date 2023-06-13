@@ -64,7 +64,7 @@ const Settings = () => {
       <div style={{marginTop:'150px'}} className={styles.settingsBlock}>
           <div className={styles.blockTitle}>Настройки соединения</div>
           <div className={styles.change}>
-            <div className={styles.textChange}>Размер пакета скачивания</div>
+            <div className={styles.textChange}>Размер пакета скачивания, <span style={{fontSize:'12px'}}>байт</span></div>
             <input
               className={styles.inputs}
               type="number"
@@ -74,9 +74,10 @@ const Settings = () => {
                 setSizeDownload(e.target.value);
               }}
             />
+
           </div>
           <div className={styles.change}>
-            <div className={styles.textChange}>Размер пакета загрузки</div>
+            <div className={styles.textChange}>Размер пакета загрузки, <span style={{fontSize:'12px'}}>байт</span></div>
             <input
               className={styles.inputs}
               type="number"
@@ -88,7 +89,7 @@ const Settings = () => {
             />
           </div>
           <div className={styles.change}>
-            <div className={styles.textChange}>Размер пакета пинга</div>
+            <div className={styles.textChange}>Размер пакета пинга, <span style={{fontSize:'12px'}}>байт</span></div>
             <input
               className={styles.inputs}
               type="number"

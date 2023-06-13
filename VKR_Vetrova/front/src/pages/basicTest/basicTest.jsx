@@ -16,21 +16,77 @@ const BasicTest = () => {
   const [upload, setUpload] = useState("");
   const [ping, setPing] = useState("");
   const [ipInfo, setIpInfo] = useState(null);
+  const [position, setPosition] = useState(null);
+
+
   const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
+      const downloadInfoData = await store.getNetworkDownloadSpeed(
 
-      const downloadInfoData = await store.getNetworkDownloadSpeed();
-      const uploadInfoData = await store.getNetworkUploadSpeed();
+      );
+      const uploadInfoData = await store.getNetworkUploadSpeed(
+
+      );
       setUpload(uploadInfoData.speed);
       setDownload(downloadInfoData);
       setPing(uploadInfoData.ping);
+      const ipInfoData = await getIp();
+      if (ipInfoData) {
+        store.updateInfoIp(
+          ipInfoData.ip,
+          ipInfoData.city,
+          ipInfoData.latitude,
+          ipInfoData.longitude
+        );
+      }
+      if (downloadInfoData && uploadInfoData) {
+        store.updateInfoConnection(
+          downloadInfoData,
+          uploadInfoData.speed,
+          uploadInfoData.ping
+        );
+      }
     }
     fetchData();
   }, []);
 
+  useEffect(() => {
+    store.refresh();
 
+    fetchData();
+  }, []);
+  const fetchData = async () => {
+    const ipInfoData = await getIp();
+    setIpInfo(ipInfoData);
+    setPosition([ipInfoData.latitude, ipInfoData.longitude]);
+  };
+
+  const getIp = async () => {
+    try {
+      const ipifyUrl = `https://api.ipify.org?format=json`;
+      const response = await axios.get(ipifyUrl);
+      const ip = response.data.ip;
+      const ipinfo = await getIpInfo(ip);
+      return ipinfo;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  };
+
+  const getIpInfo = async (ip) => {
+    try {
+      const ipapiUrl = `https://ipapi.co/${ip}/json/`;
+      const response = await axios.get(ipapiUrl);
+      const ipInfo = response.data;
+      return ipInfo;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     setBrowserInfo(navigator.userAgent);
@@ -59,18 +115,35 @@ const BasicTest = () => {
               <p>Скорость загрузки: {upload} мб/c</p>
               <p>Ping: {ping} мс</p>
             </div>
-            <h2>Информация о браузере и компьютере:</h2>
+            <div className={styles.inputsLabel}>Информация по IP:</div>
             <hr />
-            <div>
-              <p style={{ margin: "15px 0 0 0" }}>{browserInfo}</p>
-              <p style={{ margin: "15px 0 0 0" }}>
-                Уровень заряда батареи: {batteryInfo?.level}%
-              </p>
-              <p style={{ margin: "15px 0 0 0" }}>
-                Зарядка: {batteryInfo?.charging ? "да" : "нет"}
-              </p>
-            </div>
+            {ipInfo ? (
+              <div>
+                <p style={{ margin: "15px 0 0 0" }}>IP: {ipInfo.ip}</p>
+                <p style={{ margin: "15px 0 0 0" }}>Город: {ipInfo.city}</p>
+                <p style={{ margin: "15px 0 0 0" }}>
+                  Страна: {ipInfo.country_name}
+                </p>
+                
+              </div>
+            ) : (
+              <p>Загрузка информации IP...</p>
+            )}
           </div>
+          {position ? (
+            <YMaps>
+              <Map
+                defaultState={{ center: position, zoom: 9 }}
+                style={{ width: "100%", height: "400px" }}
+                options={{ suppressMapOpenBlock: true }}
+              >
+                <Placemark geometry={position} />
+              </Map>
+            </YMaps>
+          ) : (
+            <p>Загрузка карты...</p>
+          )}
+
           <button className={styles.button} onClick={() => navigate(-1)}>
           Назад
         </button>
