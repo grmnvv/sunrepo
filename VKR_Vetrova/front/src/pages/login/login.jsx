@@ -19,6 +19,7 @@ const LoginPage = () => {
 
   }
   useEffect(() => {
+    store.setError('')
     store.refresh();
   }, []);
   useEffect(() => {

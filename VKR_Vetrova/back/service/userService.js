@@ -11,6 +11,8 @@ import jwt from 'jsonwebtoken';
 import { IpInfoModel } from "../models/ipModel.js";
 import { ConnectionInfoModel } from "../models/connectionModel.js";
 import { SettingsModel } from "../models/settingsModel.js";
+import AES from "crypto-js/aes.js";
+import Utf8 from "crypto-js/enc-utf8.js";
 
 class UserService {
   secretKey = process.env.SECRET_KEY;
@@ -129,7 +131,7 @@ class UserService {
     async login(email, password){
       const user = await UserModel.findOne({ login : email }) || await UserModel.findOne({ email }) 
       if (!user) {
-          throw ApiError.BadRequest(`Пользователя с таким login/email не существует`);
+          throw ApiError.BadRequest(`Пользователя с таким email не существует`);
       }
       const salt = uuidv4();
       user.salt = salt
@@ -220,7 +222,7 @@ class UserService {
         throw ApiError.UnauthorizedError();
       }
       const userData = tokenService.validateRefreshToken(refreshToken);
-      let ipinfo = await IpInfoModel.find({user: userData.id})
+      let ipinfo = await IpInfoModel.find({user: userData.id}).lean()
       ipinfo = ipinfo.map((info) => {
         return{
           ...info, 
@@ -237,13 +239,13 @@ class UserService {
         throw ApiError.UnauthorizedError();
       }
       const userData = tokenService.validateRefreshToken(refreshToken);
-      let connectionInfo = await ConnectionInfoModel.find({user: userData.id})
+      let connectionInfo = await ConnectionInfoModel.find({user: userData.id}).lean()
       connectionInfo = connectionInfo.map((connect) => {
         return{
           ...connect,
-          downloadSpeed: this.decryptData(downloadSpeed),
-          uploadSpeed: this.decryptData(uploadSpeed),
-          ping: this.decryptData(ping),
+          downloadSpeed: this.decryptData(connect.downloadSpeed),
+          uploadSpeed: this.decryptData(connect.uploadSpeed),
+          ping: this.decryptData(connect.ping),
         }
       })
       return connectionInfo
@@ -252,7 +254,9 @@ class UserService {
       if (!refreshToken) {
         throw ApiError.UnauthorizedError();
       }
+
       const userData = tokenService.validateRefreshToken(refreshToken);
+      console.log(userData)
       const ipinfo = await IpInfoModel.create({user: userData.id, ipAddress: this.encryptData(ip), city: this.encryptData(city), latitude: this.encryptData(lat), longitude: this.encryptData(long)})
       
       return ipinfo

@@ -6,9 +6,9 @@ const ConnectionInfoModel = model(
   new Schema({
     user: { type: Schema.Types.ObjectId, ref: "User" },
     createdAt: { type: Date, default: Date.now },
-    downloadSpeed: { type: Number, required: true },
-    uploadSpeed: { type: Number, required: true },
-    ping: { type: Number, required: true },
+    downloadSpeed: { type: String, required: true },
+    uploadSpeed: { type: String, required: true },
+    ping: { type: String, required: true },
   })
 );
 

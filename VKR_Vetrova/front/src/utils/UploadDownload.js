@@ -4,7 +4,7 @@ import $api from "../http";
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 export default class NetworkSpeedCheck {
-  static async checkDownloadSpeed(fileSizeInBytes = 25000000) {
+  static async checkDownloadSpeed(fileSizeInBytes = 10000000) {
     let startTime;
 
     try {
@@ -45,7 +45,7 @@ export default class NetworkSpeedCheck {
     }
     return result;
   }
-  static async checkUploadSpeed(fileSizeInBytes = 25000000) {
+  static async checkUploadSpeed(fileSizeInBytes = 10000000) {
     let startTime;
     const defaultData = this.generateTestData(fileSizeInBytes / 1024);
     const data = JSON.stringify({ defaultData });

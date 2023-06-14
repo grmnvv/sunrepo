@@ -6,8 +6,8 @@ const IpInfoModel = model("IpInfo", new Schema({
   createdAt: { type: Date, default: Date.now },
   ipAddress: { type: String, required: true },
   city: { type: String, required: true },
-  latitude: { type: Number, required: true },
-  longitude: { type: Number, required: true },
+  latitude: { type: String, required: true },
+  longitude: { type: String, required: true },
 }));
 
 export { IpInfoModel };

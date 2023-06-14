@@ -98,12 +98,14 @@ const ProfilePage = () => {
       }
     });
 
-    ctx.lineTo(canvas.width, canvas.height); // Закрываем область ниже графика
+    ctx.lineTo((store.ConnectionArray.length - 1) * pointDistance + 50, canvas.height);
     ctx.closePath(); // Закрываем форму
     ctx.fillStyle = "rgba(75, 192, 192, 0.2)"; // Задаем цвет заполнения
     ctx.fill(); // Заливаем область цветом
     ctx.stroke();
     ctx.shadowBlur = 0;
+
+
 
     store.ConnectionArray.forEach((item, index) => {
       let height = item[speedType] * scale;
@@ -264,7 +266,7 @@ const ProfilePage = () => {
             array={store.ConnectionArray.length ? store.ConnectionArray.length : -1}
           />
           <div className={styles.changeType}>
-            <button className={styles.button} onClick={() => {toggleSpeedType()}}>{speedType == 'downloadSpeed' ? 'uploadSpeed' : 'downloadSpeed'}</button>
+            <button className={styles.button} onClick={() => { toggleSpeedType() }}>{speedType == 'downloadSpeed' ? 'uploadSpeed' : 'downloadSpeed'}</button>
           </div>
 
           <SpeedResults bestResult={bestResult} averageResult={averageResult} />
@@ -272,10 +274,10 @@ const ProfilePage = () => {
             <ActivePointInfo point={activePoint} position={pointPosition} />
           )}
           <div className={styles.buttonBlock}>
-            <DropdownButton onSelectFormat={handleFormatSelected}/>
+            <DropdownButton onSelectFormat={handleFormatSelected} />
           </div>
           <div className={styles.changeType}>
-            <button style={{fontSize:'16px', margin:'0 0 50px 0'}}className={styles.button} onClick={() => {store.deleteAll()}}>удалить историю тестирований</button>
+            <button style={{ fontSize: '16px', margin: '0 0 50px 0' }} className={styles.button} onClick={() => { store.deleteAll() }}>удалить историю тестирований</button>
           </div>
         </div>
         <IpHistoryDetails IpArray={store.IpArray} />

@@ -25,6 +25,7 @@ const RegisterPage = () => {
 
   useEffect(() => {
     store.refresh();
+    store.setError('')
   }, []);
 
   useEffect(() => {
