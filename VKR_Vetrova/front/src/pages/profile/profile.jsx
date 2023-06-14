@@ -70,7 +70,7 @@ const ProfilePage = () => {
     ctx.strokeStyle = "rgba(122, 122, 122, 0.6)";
     ctx.lineWidth = 1;
     ctx.font = "12px 'Gill Sans Ru'";
-    for (let i = 300; i <= max; i += 300) {
+    for (let i = 0; i <= max; i += 10) {
       let y = canvas.height - i * scale;
       ctx.beginPath();
       ctx.moveTo(30, y);
@@ -261,16 +261,21 @@ const ProfilePage = () => {
             handleMouseMove={handleMouseMove}
             canvasRef={canvasRef}
             fixedCanvasWidth={fixedCanvasWidth}
+            array={store.ConnectionArray.length ? store.ConnectionArray.length : -1}
           />
           <div className={styles.changeType}>
             <button className={styles.button} onClick={() => {toggleSpeedType()}}>{speedType == 'downloadSpeed' ? 'uploadSpeed' : 'downloadSpeed'}</button>
           </div>
+
           <SpeedResults bestResult={bestResult} averageResult={averageResult} />
           {activePoint && (
             <ActivePointInfo point={activePoint} position={pointPosition} />
           )}
           <div className={styles.buttonBlock}>
             <DropdownButton onSelectFormat={handleFormatSelected}/>
+          </div>
+          <div className={styles.changeType}>
+            <button style={{fontSize:'16px', margin:'0 0 50px 0'}}className={styles.button} onClick={() => {store.deleteAll()}}>удалить историю тестирований</button>
           </div>
         </div>
         <IpHistoryDetails IpArray={store.IpArray} />

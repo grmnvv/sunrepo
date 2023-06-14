@@ -11,6 +11,7 @@ router.post('/udpateInfoIp', UserController.updateInfoIp);
 router.post('/uploadSpeed', UserController.uploadSpeed);
 router.post('/udpateInfoConnection', UserController.updateInfoConnection);
 router.post('/updateSettings', UserController.updateSettings)
+router.get('/deleteAll', UserController.deleteAll)
 router.get('/activate/:link', UserController.activate)
 router.get('/getsettings', UserController.getSettings)
 router.get('/downloadSpeed/:size', UserController.downloadSpeed);

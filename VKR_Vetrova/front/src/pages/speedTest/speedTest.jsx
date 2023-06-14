@@ -7,8 +7,8 @@ import { useNavigate } from "react-router-dom";
 import Header from "../profile/ip/components/Header";
 
 const SpeedTest = ({
-  downloadSize = 2000000,
-  uploadSize = 2000000,
+  downloadSize = 20000000,
+  uploadSize = 20000000,
   pingSize = 64,
   type,
 }) => {
@@ -16,11 +16,12 @@ const SpeedTest = ({
   const [download, setDownload] = useState("");
   const [upload, setUpload] = useState("");
   const [ping, setPing] = useState("");
-  const [ipInfo, setIpInfo] = useState(null);
+  const [isTesting, setIsTesting] = useState(true); 
   const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
+      setIsTesting(true);
       const downloadInfoData = await store.getNetworkDownloadSpeed(
         downloadSize
       );
@@ -31,6 +32,7 @@ const SpeedTest = ({
       setUpload(uploadInfoData.speed);
       setDownload(downloadInfoData);
       setPing(uploadInfoData.ping);
+      setIsTesting(false);
     }
     fetchData();
   }, []);
@@ -44,9 +46,15 @@ const SpeedTest = ({
           <h2>Скорость соединения</h2>
           <hr style={{ width: "100%" }} />
           <div>
-            <p>Скорость скачивания: {download} мб/c</p>
-            <p>Скорость загрузки: {upload} мб/c</p>
-            <p>Ping: {ping} мс</p>
+            {isTesting ? ( // если идет тестирование, показываем сообщение
+              <p>Идет тестирование...</p>
+            ) : ( // если тестирование закончено, показываем результаты
+              <>
+                <p>Скорость скачивания: {download} мб/c</p>
+                <p>Скорость загрузки: {upload} мб/c</p>
+                <p>Ping: {ping} мс</p>
+              </>
+            )}
           </div>
           <button className={styles.button} onClick={() => navigate(-1)}>
             Назад

@@ -128,6 +128,16 @@ class UserController {
             next(e)
         }
     }
+    async deleteAll(req, res, next){
+        try {
+            const {refreshToken} = req.cookies;
+            const infoConnection = await UserService.deleteAll(refreshToken)
+            return res.json(infoConnection)
+        } catch (e) {
+            console.log(e)
+            next(e)
+        }
+    }
     async updateInfoConnection(req, res, next){
         try {
             const {refreshToken} = req.cookies;

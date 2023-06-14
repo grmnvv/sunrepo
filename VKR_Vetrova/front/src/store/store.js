@@ -208,7 +208,13 @@ export default class Store {
     console.log(download, upload, ping, mb, ipSettings, browserSettings)
     const settings = await AuthService.updateSettings(download, upload, ping, mb, ipSettings, browserSettings);
   }
-  
+  async deleteAll() {
+    console.log('gsdfs')
+    const settings = await AuthService.deleteAll();
+    this.setIpArray([])
+    this.setConnectionArray([])
+    console.log(settings)
+  }
   async getSettings(){
     const response = await AuthService.getSettings();
     console.log(response.data)

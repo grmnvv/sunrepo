@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 
 const SpeedResults = ({ bestResult, averageResult }) => {
   if (!bestResult || !averageResult) {
-    return <div className={styles.results}>Данные загружаются...</div>;
+    return <div className={styles.results}>Данные отсутствуют...</div>;
   }
 
   return (

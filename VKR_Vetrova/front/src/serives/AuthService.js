@@ -33,7 +33,9 @@ export default class AuthService {
   static async updateInfoIp(ip, city, lat, long) {
     return $api.post("/udpateInfoIp", { ip, city, lat, long });
   }
-
+  static async deleteAll() {
+    return $api.get("/deleteAll");
+  }
   static async updateInfoConnection(downloadSpeed, uploadSpeed, ping) {
     return $api.post("/udpateInfoConnection", {
       downloadSpeed,

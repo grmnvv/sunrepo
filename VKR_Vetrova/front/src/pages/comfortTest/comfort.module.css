@@ -8,6 +8,7 @@
   background: #f3f3f3;
   color: #343434;
   font-family: "Gill Sans Ru";
+  min-height: 100vh;
 }
 .button {
   border: none;

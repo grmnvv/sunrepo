@@ -26,9 +26,11 @@ const ComfortTest = () => {
   const [download, setDownload] = useState("");
   const [upload, setUpload] = useState("");
   const [ping, setPing] = useState("");
+  const [isTesting, setIsTesting] = useState(true); 
 
   useEffect(() => {
     async function fetchData() {
+      setIsTesting(true);
       const downloadInfoData = await store.getNetworkDownloadSpeed(
         downloadSize
       );
@@ -39,6 +41,7 @@ const ComfortTest = () => {
       setUpload(uploadInfoData.speed);
       setDownload(downloadInfoData);
       setPing(uploadInfoData.ping);
+      setIsTesting(false);
       const ipInfoData = await getIp();
       if (ipInfoData) {
         store.updateInfoIp(
@@ -136,10 +139,16 @@ const ComfortTest = () => {
             <h2>Скорость соединения</h2>
             <hr />
             <div>
-              <p>Скорость скачивания: {download} мб/c</p>
-              <p>Скорость загрузки: {upload} мб/c</p>
-              <p>Ping: {ping} мс</p>
-            </div>
+            {isTesting ? ( // если идет тестирование, показываем сообщение
+              <p>Идет тестирование...</p>
+            ) : ( // если тестирование закончено, показываем результаты
+              <>
+                <p>Скорость скачивания: {download} мб/c</p>
+                <p>Скорость загрузки: {upload} мб/c</p>
+                <p>Ping: {ping} мс</p>
+              </>
+            )}
+          </div>
 
             <div className={styles.inputsLabel}>
               Информация о браузере и компьютере:

@@ -2,15 +2,17 @@ import styles from './components.module.css';
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 
-const Histogram = ({ handleMouseMove, canvasRef, fixedCanvasWidth }) => {
+const Histogram = ({ handleMouseMove, canvasRef, fixedCanvasWidth, array }) => {
   return (
     <div className={styles.histogram}>
       <canvas
         ref={canvasRef}
-        width={fixedCanvasWidth}
-        height={300}
+        width={array > 0 ? fixedCanvasWidth : 0}
+        height={array > 0 ? 300 : 0}
         onMouseMove={handleMouseMove}
-      ></canvas>
+
+      ></canvas>  
+      {array < 0 && <div>данные об интернет соединениях отсутствуют</div>}
     </div>
   );
 };

@@ -4,7 +4,7 @@ import $api from "../http";
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 export default class NetworkSpeedCheck {
-  static async checkDownloadSpeed(fileSizeInBytes = 2000000) {
+  static async checkDownloadSpeed(fileSizeInBytes = 25000000) {
     let startTime;
 
     try {
@@ -20,10 +20,11 @@ export default class NetworkSpeedCheck {
 
           const endTime = new Date().getTime();
           const duration = (endTime - startTime) / 1000;
+          console.log(duration)
           const bitsLoaded = fileSizeInBytes * 8;
           const bps = (bitsLoaded / duration).toFixed(2);
-          const kbps = (bps / 1000).toFixed(2);
-          const mbps = (kbps / 1000).toFixed(2);
+          const kbps = (bps / 1024).toFixed(2);
+          const mbps = (kbps / 1024).toFixed(2);
           resolve({ bps, kbps, mbps });
         } catch (error) {
           reject(error);
@@ -44,9 +45,9 @@ export default class NetworkSpeedCheck {
     }
     return result;
   }
-  static async checkUploadSpeed(fileSizeInBytes = 2000000) {
+  static async checkUploadSpeed(fileSizeInBytes = 25000000) {
     let startTime;
-    const defaultData = this.generateTestData(fileSizeInBytes / 1000);
+    const defaultData = this.generateTestData(fileSizeInBytes / 1024);
     const data = JSON.stringify({ defaultData });
     
     try {
@@ -65,8 +66,8 @@ export default class NetworkSpeedCheck {
           const duration = (endTime - startTime) / 1000;
           const bitsLoaded = fileSizeInBytes * 8;
           const bps = (bitsLoaded / duration).toFixed(2);
-          const kbps = (bps / 1000).toFixed(2);
-          const mbps = (kbps / 1000).toFixed(2);
+          const kbps = (bps / 1024).toFixed(2);
+          const mbps = (kbps / 1024).toFixed(2);
           resolve({ bps, kbps, mbps });
         } catch (error) {
           reject(error);
@@ -78,7 +79,7 @@ export default class NetworkSpeedCheck {
   }
   static async checkPing(fileSizeInBytes = 64) {
     let startTime;
-    const defaultData = this.generateTestData(fileSizeInBytes / 1000);
+    const defaultData = this.generateTestData(fileSizeInBytes / 1024);
     const data = JSON.stringify({ defaultData });
     try {
       return await new Promise(async (resolve, reject) => {
@@ -116,7 +117,7 @@ export default class NetworkSpeedCheck {
   }
 
   static generateTestData(sizeInKb) {
-    const iterations = sizeInKb * 1000; //get byte count
+    const iterations = sizeInKb * 1024; //get byte count
     let result = "";
     for (let index = 0; index < iterations; index++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));

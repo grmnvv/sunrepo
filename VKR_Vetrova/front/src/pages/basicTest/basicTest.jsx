@@ -17,12 +17,13 @@ const BasicTest = () => {
   const [ping, setPing] = useState("");
   const [ipInfo, setIpInfo] = useState(null);
   const [position, setPosition] = useState(null);
-
+  const [isTesting, setIsTesting] = useState(true); 
 
   const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
+      setIsTesting(true)
       const downloadInfoData = await store.getNetworkDownloadSpeed(
 
       );
@@ -32,6 +33,7 @@ const BasicTest = () => {
       setUpload(uploadInfoData.speed);
       setDownload(downloadInfoData);
       setPing(uploadInfoData.ping);
+      setIsTesting(false)
       const ipInfoData = await getIp();
       if (ipInfoData) {
         store.updateInfoIp(
@@ -111,10 +113,16 @@ const BasicTest = () => {
             <h2>Скорость соединения</h2>
             <hr />
             <div>
-              <p>Скорость скачивания: {download} мб/c</p>
-              <p>Скорость загрузки: {upload} мб/c</p>
-              <p>Ping: {ping} мс</p>
-            </div>
+            {isTesting ? ( // если идет тестирование, показываем сообщение
+              <p>Идет тестирование...</p>
+            ) : ( // если тестирование закончено, показываем результаты
+              <>
+                <p>Скорость скачивания: {download} мб/c</p>
+                <p>Скорость загрузки: {upload} мб/c</p>
+                <p>Ping: {ping} мс</p>
+              </>
+            )}
+          </div>
             <div className={styles.inputsLabel}>Информация по IP:</div>
             <hr />
             {ipInfo ? (

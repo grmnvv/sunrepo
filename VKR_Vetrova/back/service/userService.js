@@ -13,7 +13,22 @@ import { ConnectionInfoModel } from "../models/connectionModel.js";
 import { SettingsModel } from "../models/settingsModel.js";
 
 class UserService {
+  secretKey = process.env.SECRET_KEY;
+  
+  encryptData(data) {
+    const ciphertext = AES.encrypt(JSON.stringify(data), this.secretKey);
+    return ciphertext.toString();
+  }
 
+  decryptData(ciphertext) {
+    try {
+      const bytes = AES.decrypt(ciphertext, this.secretKey);
+      const decryptedData = JSON.parse(bytes.toString(Utf8));
+      return decryptedData;
+    } catch (e) {
+      console.log(ciphertext)
+    }
+  }
     async registration(email, password, ) {
       const candidate = await UserModel.findOne({ email });
       if (candidate) {
@@ -38,8 +53,8 @@ class UserService {
 
       const newSettings = await SettingsModel.create({
         user: userDto.id,
-        download: '2000000',
-        upload: '2000000',
+        download: '20000000',
+        upload: '20000000',
         ping: '64',
         mb: 'mbps',
         ipSettings: [
@@ -205,7 +220,16 @@ class UserService {
         throw ApiError.UnauthorizedError();
       }
       const userData = tokenService.validateRefreshToken(refreshToken);
-      const ipinfo = IpInfoModel.find({user: userData.id})
+      let ipinfo = await IpInfoModel.find({user: userData.id})
+      ipinfo = ipinfo.map((info) => {
+        return{
+          ...info, 
+          ipAddress: this.decryptData(info.ipAddress),
+          city: this.decryptData(info.city),
+          latitude: this.decryptData(info.latitude),
+          longitude: this.decryptData(info.longitude),
+        }
+      })
       return ipinfo
     }
     async getInfoConnection(refreshToken){
@@ -213,7 +237,15 @@ class UserService {
         throw ApiError.UnauthorizedError();
       }
       const userData = tokenService.validateRefreshToken(refreshToken);
-      const connectionInfo = ConnectionInfoModel.find({user: userData.id})
+      let connectionInfo = await ConnectionInfoModel.find({user: userData.id})
+      connectionInfo = connectionInfo.map((connect) => {
+        return{
+          ...connect,
+          downloadSpeed: this.decryptData(downloadSpeed),
+          uploadSpeed: this.decryptData(uploadSpeed),
+          ping: this.decryptData(ping),
+        }
+      })
       return connectionInfo
     }
     async updateInfoIp(refreshToken, ip, city, lat, long){
@@ -221,8 +253,19 @@ class UserService {
         throw ApiError.UnauthorizedError();
       }
       const userData = tokenService.validateRefreshToken(refreshToken);
-      const ipinfo = IpInfoModel.create({user: userData.id, ipAddress: ip, city: city, latitude: lat, longitude: long})
+      const ipinfo = await IpInfoModel.create({user: userData.id, ipAddress: this.encryptData(ip), city: this.encryptData(city), latitude: this.encryptData(lat), longitude: this.encryptData(long)})
+      
       return ipinfo
+    }
+    async deleteAll(refreshToken){
+      if (!refreshToken) {
+        throw ApiError.UnauthorizedError();
+      }
+      const userData = tokenService.validateRefreshToken(refreshToken);
+      console.log(userData)
+      const deletet = await IpInfoModel.deleteMany({user:userData.id})
+      const deletett = await ConnectionInfoModel.deleteMany({user:userData.id})
+      return {deletet, deletett}
     }
     async updateInfoConnection(refreshToken, downloadSpeed, uploadSpeed, ping){
       if (!refreshToken) {
@@ -230,7 +273,7 @@ class UserService {
       }
       const userData = tokenService.validateRefreshToken(refreshToken);
 
-      const connectionInfo = ConnectionInfoModel.create({user: userData.id, downloadSpeed: downloadSpeed, uploadSpeed: uploadSpeed, ping: ping})
+      const connectionInfo = await ConnectionInfoModel.create({user: userData.id, downloadSpeed: this.encryptData(downloadSpeed), uploadSpeed: this.encryptData(uploadSpeed), ping: this.encryptData(ping)})
       return connectionInfo
     }
     async updateSettings(refreshToken, downloadSpeed, uploadSpeed, ping, mb, ipSettings, browserSettings) {
@@ -242,8 +285,8 @@ class UserService {
       const update = await SettingsModel.findOneAndUpdate(
         { user: user.id },
         {
-          download: downloadSpeed === '' ? '2000000' : downloadSpeed,
-          upload: uploadSpeed === '' ? '2000000' : uploadSpeed,
+          download: downloadSpeed === '' ? '20000000' : downloadSpeed,
+          upload: uploadSpeed === '' ? '20000000' : uploadSpeed,
           ping: ping === '' ? '64' : ping,
           mb: mb,
           ipSettings: ipSettings.map(setting => ({
